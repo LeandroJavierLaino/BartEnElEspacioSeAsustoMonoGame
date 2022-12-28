@@ -1,7 +1,7 @@
-﻿namespace TGC.MonoGame.TP.Components.Camera
-{
-    using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
+namespace TGC.MonoGame.TP.Components.Camera
+{
     /// <summary>
     /// The minimum behavior that a camera should have.
     /// </summary>
@@ -10,7 +10,7 @@
         /// <summary>
         /// Defines the DefaultFieldOfViewDegrees.
         /// </summary>
-        public const float DefaultFieldOfViewDegrees = MathHelper.Pi/3;
+        public const float DefaultFieldOfViewDegrees = MathHelper.Pi / 3;
 
         /// <summary>
         /// Defines the DefaultNearPlaneDistance.

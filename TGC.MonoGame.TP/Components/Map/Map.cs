@@ -1,8 +1,8 @@
-﻿namespace TGC.MonoGame.TP.Components.Map
-{
-    using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
+namespace TGC.MonoGame.TP.Components.Map
+{
     /// <summary>
     /// Defines the <see cref="Map" />.
     /// </summary>
@@ -41,26 +41,33 @@
         /// The LoadContent.
         /// </summary>
         /// <param name="Column">The Column<see cref="Model"/>.</param>
-        public void LoadContent(Model Column, Texture2D floorTexture, GraphicsDevice graphicsDevice)
+        public void LoadContent(Texture2D floorTexture, GraphicsDevice graphicsDevice, Effect effect)
         {
-            this.Column = Column;
-            // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
-            var modelEffect = (BasicEffect)Column.Meshes[0].Effects[0];
-            modelEffect.DiffuseColor = Color.IndianRed.ToVector3();
-            modelEffect.EnableDefaultLighting();
+            Floor = new Floor(graphicsDevice, new Vector3(0, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
 
-            Floor = new Floor(graphicsDevice, new Vector3(0, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-
-            FloorExternal1 = new Floor(graphicsDevice, new Vector3(size, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal2 = new Floor(graphicsDevice, new Vector3(size, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal3 = new Floor(graphicsDevice, new Vector3(0, -110, size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal4 = new Floor(graphicsDevice, new Vector3(size, -110, size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal5 = new Floor(graphicsDevice, new Vector3(-size, -110, size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal6 = new Floor(graphicsDevice, new Vector3(-size, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal7 = new Floor(graphicsDevice, new Vector3(0, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
-            FloorExternal8 = new Floor(graphicsDevice, new Vector3(-size, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
+            FloorExternal1 = new Floor(graphicsDevice, new Vector3(size, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal2 = new Floor(graphicsDevice, new Vector3(size, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal3 = new Floor(graphicsDevice, new Vector3(0, -110, size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal4 = new Floor(graphicsDevice, new Vector3(size, -110, size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal5 = new Floor(graphicsDevice, new Vector3(-size, -110, size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal6 = new Floor(graphicsDevice, new Vector3(-size, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal7 = new Floor(graphicsDevice, new Vector3(0, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
+            FloorExternal8 = new Floor(graphicsDevice, new Vector3(-size, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5, effect);
 
             QuadWorld = Matrix.CreateTranslation(Vector3.UnitX * size / 2 + Vector3.UnitZ * size / 2);
+        }
+
+        public void Update(Vector3 cameraPosition)
+        {
+            Floor.Update(cameraPosition);
+            FloorExternal1.Update(cameraPosition);
+            FloorExternal2.Update(cameraPosition);
+            FloorExternal3.Update(cameraPosition);
+            FloorExternal4.Update(cameraPosition);
+            FloorExternal5.Update(cameraPosition);
+            FloorExternal6.Update(cameraPosition);
+            FloorExternal7.Update(cameraPosition);
+            FloorExternal8.Update(cameraPosition);
         }
 
         /// <summary>
@@ -71,11 +78,6 @@
         /// <param name="Projection">The Projection<see cref="Matrix"/>.</param>
         public void Draw(Matrix World, Matrix View, Matrix Projection)
         {
-            Column.Draw(World * Matrix.CreateTranslation(minSpace, 0, minSpace), View, Projection);
-            Column.Draw(World * Matrix.CreateTranslation(size - minSpace, 0, size - minSpace), View, Projection);
-            Column.Draw(World * Matrix.CreateTranslation(minSpace, 0, size - minSpace), View, Projection);
-            Column.Draw(World * Matrix.CreateTranslation(size - minSpace, 0, minSpace), View, Projection);
-
             Floor.Draw(QuadWorld, View, Projection);
             FloorExternal1.Draw(QuadWorld, View, Projection);
             FloorExternal2.Draw(QuadWorld, View, Projection);

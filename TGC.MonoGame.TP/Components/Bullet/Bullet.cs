@@ -1,8 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TGC.MonoGame.TP.Components.Bullet
 {
@@ -18,7 +14,7 @@ namespace TGC.MonoGame.TP.Components.Bullet
         public Bullet()
         {
             Velocity = 50;
-            Damage = 35;
+            Damage = 50;
             DidDamage = false;
         }
 

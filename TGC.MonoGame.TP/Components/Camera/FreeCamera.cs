@@ -3,7 +3,6 @@
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
     using System;
-    using System.Diagnostics;
 
     /// <summary>
     /// Defines the <see cref="FreeCamera" />.
@@ -45,6 +44,12 @@
         /// </summary>
         private bool isDashing;
 
+        private readonly float SLIDING_VELOCITY = 3f;
+        private readonly float DELTA_AMOUNT = 0.00015f;
+        private readonly int POSITIVE_LIMIT = 5400;
+        private readonly int NEGATIVE_LIMIT = -2700;
+        private readonly float MAX_PITCH = 89.0f;
+
         // Angles
         /// <summary>
         /// Defines the pitch.
@@ -55,11 +60,6 @@
         /// Defines the yaw.
         /// </summary>
         public float yaw = -90f;
-
-        public Vector2 ColumnPosition = new Vector2(50, 50);
-        public Vector2 Column2Position = new Vector2(50, 2650);
-        public Vector2 Column3Position = new Vector2(2650, 50);
-        public Vector2 Column4Position = new Vector2(2650, 2650);
 
         public void SetDashPower(float newDashPower)
         {
@@ -100,8 +100,7 @@
         public FreeCamera(float aspectRatio, Vector3 position) : base(aspectRatio)
         {
             Position = position;
-            pastMousePosition = Mouse.GetState().Position.ToVector2();
-            Mouse.SetCursor(MouseCursor.Crosshair);
+            pastMousePosition = Mouse.GetState().Position.ToVector2();        
             UpdateCameraVectors();
             CalculateView();
         }
@@ -109,30 +108,29 @@
         /// <summary>
         /// Gets or sets the MovementSpeed.
         /// </summary>
-        public float MovementSpeed { get; set; } = 850f;
+        public float MovementSpeed { get; set; } = 0.65f;
 
         /// <summary>
         /// Gets or sets the MouseSensitivity.
         /// </summary>
-        public float MouseSensitivity { get; set; } = 12f;
+        public float MouseSensitivity { get; set; } = 0.000035f;
 
         /// <summary>
         /// The CalculateView.
         /// </summary>
         private void CalculateView()
         {
-            //Projection = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 2, 16/9, 0.00000000000000001f, 1000);
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
 
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             changed = false;
             ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
-            
+
             if (changed)
                 CalculateView();
         }
@@ -143,7 +141,7 @@
         /// <returns>The <see cref="float"/>.</returns>
         private float BobingOscilation()
         {
-            return MathF.Sin(accumulatedTime / 0.1f);
+            return MathF.Sin(accumulatedTime / 100 );
         }
 
         /// <summary>
@@ -168,7 +166,7 @@
                 dashPower -= 50;
                 isDashing = true;
                 currentMovementSpeed *= 150f;
-            }                
+            }
 
             if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
@@ -199,15 +197,48 @@
             }
 
             // Collision with external space
-            if (newPosition.X >= -2700 && newPosition.Z >= -2700 && newPosition.X <= 5400 && newPosition.Z <= 5400)
+            if (newPosition.X >= NEGATIVE_LIMIT && newPosition.Z >= NEGATIVE_LIMIT && newPosition.X <= POSITIVE_LIMIT && newPosition.Z <= POSITIVE_LIMIT)
             {
-                // Collision with columns
-                if(Vector2.Distance(new Vector2(newPosition.X,newPosition.Z),ColumnPosition) >= 125 
-                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column2Position) >= 125
-                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column3Position) >= 125
-                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column4Position) >= 125)
-                    Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
+                Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
             }
+            else
+            {
+                // Simple sliding solution
+                if(newPosition.X < NEGATIVE_LIMIT)
+                {
+                    Position = new Vector3(Position.X, bobOscilate, Position.Z + SLIDING_VELOCITY * FrontDirection.Z);
+                }
+
+                if (newPosition.X > POSITIVE_LIMIT)
+                {
+                    Position = new Vector3(Position.X, bobOscilate, Position.Z + SLIDING_VELOCITY * FrontDirection.Z);
+                }
+
+                if (newPosition.Z < NEGATIVE_LIMIT)
+                {
+                    Position = new Vector3(Position.X + SLIDING_VELOCITY * FrontDirection.X, bobOscilate, Position.Z );
+                }
+
+                if (newPosition.Z > POSITIVE_LIMIT)
+                {
+                    Position = new Vector3(Position.X + SLIDING_VELOCITY * FrontDirection.X, bobOscilate, Position.Z );
+                }
+            }
+        }
+
+        public void RotateLeftOrRight(float gameTime, float amount)
+        {
+
+            yaw -= 2 * amount * -MouseSensitivity * gameTime;
+
+        }
+        public void RotateUpOrDown(float gameTime, float amount)
+        {
+            pitch += 2 * amount * -MouseSensitivity * gameTime;
+            if (pitch > MAX_PITCH)
+                pitch = MAX_PITCH;
+            if (pitch < -MAX_PITCH)
+                pitch = -MAX_PITCH;
         }
 
         /// <summary>
@@ -216,22 +247,24 @@
         /// <param name="elapsedTime">The elapsedTime<see cref="float"/>.</param>
         private void ProcessMouseMovement(float elapsedTime)
         {
-            var mouseState = Mouse.GetState();
-
+            MouseState mouseState = Mouse.GetState();
+            
             var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
-            mouseDelta *= -1 * MouseSensitivity * elapsedTime;
+            
 
-            yaw -= mouseDelta.X;
-            pitch += mouseDelta.Y;
+            if(mouseDelta.X != DELTA_AMOUNT)
+            {
+                RotateLeftOrRight(elapsedTime, mouseDelta.X);
+                changed = true;
+            }
+            if (mouseDelta.Y != DELTA_AMOUNT) 
+            {
+                RotateUpOrDown(elapsedTime, mouseDelta.Y);
+                changed = true;
+            }
+            
 
-            if (pitch > 89.0f)
-                pitch = 89.0f;
-            if (pitch < -89.0f)
-                pitch = -89.0f;
-
-            changed = true;
             UpdateCameraVectors();
-
             Mouse.SetPosition(screenCenter.X, screenCenter.Y);
 
             pastMousePosition = Mouse.GetState().Position.ToVector2();
@@ -244,9 +277,9 @@
         {
             // Calculate the new Front vector
             Vector3 tempFront;
-            tempFront.X = MathF.Cos(MathHelper.ToRadians(yaw)) * MathF.Cos(MathHelper.ToRadians(pitch));
-            tempFront.Y = MathF.Sin(MathHelper.ToRadians(pitch));
-            tempFront.Z = MathF.Sin(MathHelper.ToRadians(yaw)) * MathF.Cos(MathHelper.ToRadians(pitch));
+            tempFront.X = MathF.Cos((yaw)) * MathF.Cos((pitch));
+            tempFront.Y = MathF.Sin((pitch));
+            tempFront.Z = MathF.Sin((yaw)) * MathF.Cos((pitch));
 
             FrontDirection = Vector3.Normalize(tempFront);
 

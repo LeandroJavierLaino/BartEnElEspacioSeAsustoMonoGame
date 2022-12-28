@@ -1,8 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TGC.MonoGame.TP.Components.Map
 {
@@ -20,12 +17,10 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <param name="texture">The texture to use.</param>
         /// <param name="textureRepeats">Times to repeat the given texture.</param>
         public Floor(GraphicsDevice graphicsDevice, Vector3 origin, Vector3 normal, Vector3 up, float width,
-            float height, Texture2D texture, float textureRepeats)
+            float height, Texture2D texture, float textureRepeats, Effect effect)
         {
-            Effect = new BasicEffect(graphicsDevice);
-            Effect.TextureEnabled = true;
-            Effect.Texture = texture;
-            Effect.EnableDefaultLighting();
+            Effect = effect;
+            Effect.Parameters["baseTexture"].SetValue(texture);
 
             Origin = origin;
             Normal = normal;
@@ -88,7 +83,7 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <summary>
         ///     Used to set and query effects and choose techniques.
         /// </summary>
-        public BasicEffect Effect { get; }
+        public Effect Effect { get; }
 
         /// <summary>
         ///     Create a vertex buffer for the figure with the given information.
@@ -140,6 +135,12 @@ namespace TGC.MonoGame.TP.Components.Map
             Indices.SetData(indices);
         }
 
+        public void Update(Vector3 cameraPosition)
+        {
+            Effect.Parameters["lightPosition"].SetValue(cameraPosition);
+            Effect.Parameters["eyePosition"].SetValue(cameraPosition);
+        }
+
         /// <summary>
         ///     Draw the Quad.
         /// </summary>
@@ -148,10 +149,21 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <param name="projection">The projection matrix, normally from the application.</param>
         public void Draw(Matrix world, Matrix view, Matrix projection)
         {
+            Effect.Parameters["ambientColor"].SetValue(Color.Black.ToVector3());
+            Effect.Parameters["diffuseColor"].SetValue(Color.Red.ToVector3());
+            Effect.Parameters["specularColor"].SetValue(Color.Wheat.ToVector3());
+
+            Effect.Parameters["KAmbient"].SetValue(0.4f);
+            Effect.Parameters["KDiffuse"].SetValue(0.85f);
+            Effect.Parameters["KSpecular"].SetValue(0.15f);
+            Effect.Parameters["shininess"].SetValue(100f);
+            Effect.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
+
             // Set BasicEffect parameters.
-            Effect.World = world;
-            Effect.View = view;
-            Effect.Projection = projection;
+            Effect.Parameters["World"].SetValue(world);
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
 
             // Draw the model, using BasicEffect.
             Draw(Effect);
