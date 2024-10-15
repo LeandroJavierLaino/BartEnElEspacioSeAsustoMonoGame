@@ -207,7 +207,7 @@
             modelEffectBullet.EnableDefaultLighting();
 
             // Load enemy model
-            Skull = Content.Load<Model>(ContentFolder3D + "bullskulleyes/bullskulleyes");
+            Skull = Content.Load<Model>(ContentFolder3D + "skullv2/skull");
             var modelEffectSkull = (BasicEffect)BulletModel.Meshes[0].Effects[0];
             modelEffectSkull.DiffuseColor = Color.White.ToVector3();
             modelEffectSkull.EnableDefaultLighting();
@@ -217,8 +217,11 @@
             SpawnerModel.LoadContent(ContentFolder3D, Content);
 
             // Load shotgun model
-            Shotgun = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
+            Shotgun = Content.Load<Model>(ContentFolder3D + "rocketLauncher/rocketLauncher");
+            //var shotgunTexture = Content.Load<Texture>(ContentFolder3D + "rocketLauncher/rocketl");
+            
             var modelEffect = (BasicEffect)Shotgun.Meshes[0].Effects[0];
+       
             modelEffect.DiffuseColor = Color.White.ToVector3();
             modelEffect.EnableDefaultLighting();
 
@@ -384,8 +387,8 @@
             }
 
             Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
-            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * MathHelper.Lerp(40, 35, Recoil) + cameraRight * 10 - Camera.UpDirection * 4;
-            Matrix shotgunWorld = Matrix.CreateScale(0.1f, 0.1f, 0.1f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
+            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -25, 0) + Camera.FrontDirection * MathHelper.Lerp(80, 65, Recoil) + cameraRight * 25 - Camera.UpDirection * 4;
+            Matrix shotgunWorld = Matrix.CreateScale(0.05f, 0.05f, 0.05f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
             Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
 
             base.Draw(gameTime);
