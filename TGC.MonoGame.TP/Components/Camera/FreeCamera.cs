@@ -56,11 +56,6 @@
         /// </summary>
         public float yaw = -90f;
 
-        public Vector2 ColumnPosition = new Vector2(50, 50);
-        public Vector2 Column2Position = new Vector2(50, 2650);
-        public Vector2 Column3Position = new Vector2(2650, 50);
-        public Vector2 Column4Position = new Vector2(2650, 2650);
-
         public void SetDashPower(float newDashPower)
         {
             dashPower = newDashPower;
@@ -201,12 +196,7 @@
             // Collision with external space
             if (newPosition.X >= -2700 && newPosition.Z >= -2700 && newPosition.X <= 5400 && newPosition.Z <= 5400)
             {
-                // Collision with columns
-                if(Vector2.Distance(new Vector2(newPosition.X,newPosition.Z),ColumnPosition) >= 125 
-                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column2Position) >= 125
-                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column3Position) >= 125
-                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column4Position) >= 125)
-                    Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
+                Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
             }
         }
 

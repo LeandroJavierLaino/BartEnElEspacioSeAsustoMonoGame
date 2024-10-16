@@ -19,121 +19,6 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
 
-#begin Models/bonecolumn/BoneColumn.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/bonecolumn/BoneColumn.fbx
-
-#begin Models/bonecolumn/Texture/Skull_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Texture/Skull_Normal.png
-
-#begin Models/bonecolumn/Texture/Skull_Texture.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Texture/Skull_Texture.png
-
-#begin Models/bonecolumn/Texture/WhiteBone_Albedo.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Texture/WhiteBone_Albedo.png
-
-#begin Models/bonecolumn/Texture/WhiteBone_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Texture/WhiteBone_Normal.png
-
-#begin Models/bonecolumn/Textures/Skull_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Textures/Skull_Normal.png
-
-#begin Models/bonecolumn/Textures/Skull_Texture.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Textures/Skull_Texture.png
-
-#begin Models/bonecolumn/Textures/WhiteBone_Albedo.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Textures/WhiteBone_Albedo.png
-
-#begin Models/bonecolumn/Textures/WhiteBone_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bonecolumn/Textures/WhiteBone_Normal.png
-
 #begin Models/bullet/Bullet_9x19.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -201,7 +86,19 @@
 /processorParam:TextureFormat=Color
 /build:Models/bullet/Shell_Normal.png
 
-#begin Models/bullskull/bullskull.fbx
+#begin Models/granadeLauncher/granadeLauncher.fbm/grenadel.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/granadeLauncher/granadeLauncher.fbm/grenadel.jpg
+
+#begin Models/granadeLauncher/granadeLauncher.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -218,9 +115,21 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/bullskull/bullskull.fbx
+/build:Models/granadeLauncher/granadeLauncher.fbx
 
-#begin Models/bullskulleyes/bullskulleyes.fbx
+#begin Models/largeCross/largeCross.fbm/envmapgold.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/largeCross/largeCross.fbm/envmapgold.jpg
+
+#begin Models/largeCross/largeCross.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -237,9 +146,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/bullskulleyes/bullskulleyes.fbx
+/build:Models/largeCross/largeCross.fbx
 
-#begin Models/bullskulleyes/Texture/Skull_Normal.png
+#begin Models/mahineGun/machineGun.fbm/machinegun.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -249,21 +158,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/bullskulleyes/Texture/Skull_Normal.png
+/build:Models/mahineGun/machineGun.fbm/machinegun.jpg
 
-#begin Models/bullskulleyes/Texture/Skull_Texture.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/bullskulleyes/Texture/Skull_Texture.png
-
-#begin Models/monsterlarge/MonsterLarge.fbx
+#begin Models/mahineGun/machineGun.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -280,9 +177,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/monsterlarge/MonsterLarge.fbx
+/build:Models/mahineGun/machineGun.fbx
 
-#begin Models/monsterlarge/Texture/Skull_Normal.png
+#begin Models/redArmor/redArmor.fbm/newred.tga
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -292,9 +189,28 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Texture/Skull_Normal.png
+/build:Models/redArmor/redArmor.fbm/newred.tga
 
-#begin Models/monsterlarge/Texture/Skull_Texture.png
+#begin Models/redArmor/redArmor.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/redArmor/redArmor.fbx
+
+#begin Models/rocketLauncher/rocketLauncher.fbm/rocketl.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -304,9 +220,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Texture/Skull_Texture.png
+/build:Models/rocketLauncher/rocketLauncher.fbm/rocketl.jpg
 
-#begin Models/monsterlarge/Texture/WhiteBone_Albedo.png
+#begin Models/rocketLauncher/rocketLauncher.fbm/rocketl2.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -316,67 +232,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Texture/WhiteBone_Albedo.png
-
-#begin Models/monsterlarge/Texture/WhiteBone_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Texture/WhiteBone_Normal.png
-
-#begin Models/monsterlarge/Textures/Skull_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Textures/Skull_Normal.png
-
-#begin Models/monsterlarge/Textures/Skull_Texture.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Textures/Skull_Texture.png
-
-#begin Models/monsterlarge/Textures/WhiteBone_Albedo.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Textures/WhiteBone_Albedo.png
-
-#begin Models/monsterlarge/Textures/WhiteBone_Normal.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/monsterlarge/Textures/WhiteBone_Normal.png
+/build:Models/rocketLauncher/rocketLauncher.fbm/rocketl2.jpg
 
 #begin Models/rocketLauncher/rocketLauncher.fbx
 /importer:FbxImporter
@@ -397,7 +253,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/rocketLauncher/rocketLauncher.fbx
 
-#begin Models/shotgun/Materials/5_d.tga
+#begin Models/shotgun/shotgun.fbm/shotgun.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -407,7 +263,31 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/shotgun/Materials/5_d.tga
+/build:Models/shotgun/shotgun.fbm/shotgun.jpg
+
+#begin Models/shotgun/shotgun.fbm/shotgun.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/shotgun/shotgun.fbm/shotgun.jpg
+
+#begin Models/shotgun/shotgun.fbm/shotgun_laser.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/shotgun/shotgun.fbm/shotgun_laser.jpg
 
 #begin Models/shotgun/shotgun.fbx
 /importer:FbxImporter
@@ -428,7 +308,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/shotgun/shotgun.fbx
 
-#begin Models/skullv2/skull.fbx
+#begin Models/shotgun/shotgun.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -445,9 +325,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/skullv2/skull.fbx
+/build:Models/shotgun/shotgun.fbx
 
-#begin Models/tgc-logo/tgc-logo.fbx
+#begin Models/shotgun/shotgun.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -464,7 +344,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/tgc-logo/tgc-logo.fbx
+/build:Models/shotgun/shotgun.fbx
 
 #begin Music/doom-ost-damnation.mp3
 /importer:Mp3Importer

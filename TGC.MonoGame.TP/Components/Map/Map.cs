@@ -8,10 +8,6 @@
     /// </summary>
     internal class Map
     {
-        /// <summary>
-        /// Gets or sets the Column.
-        /// </summary>
-        private Model Column { get; set; }
         private Floor Floor { get; set; }
         private Floor FloorExternal1 { get; set; }
         private Floor FloorExternal2 { get; set; }
@@ -26,8 +22,6 @@
         /// <summary>
         /// Defines the separation.
         /// </summary>
-        private const float separation = 450f;
-        private const float minSpace = 50f;
         private const float size = 2750;
 
         /// <summary>
@@ -41,14 +35,8 @@
         /// The LoadContent.
         /// </summary>
         /// <param name="Column">The Column<see cref="Model"/>.</param>
-        public void LoadContent(Model Column, Texture2D floorTexture, GraphicsDevice graphicsDevice)
+        public void LoadContent( Texture2D floorTexture, GraphicsDevice graphicsDevice)
         {
-            this.Column = Column;
-            // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
-            var modelEffect = (BasicEffect)Column.Meshes[0].Effects[0];
-            modelEffect.DiffuseColor = Color.IndianRed.ToVector3();
-            modelEffect.EnableDefaultLighting();
-
             Floor = new Floor(graphicsDevice, new Vector3(0, -110, 0), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
 
             FloorExternal1 = new Floor(graphicsDevice, new Vector3(size, -110, -size), Vector3.Up, Vector3.Backward, size, size, floorTexture, 5);
@@ -66,15 +54,10 @@
         /// <summary>
         /// The Draw.
         /// </summary>
-        /// <param name="World">The World<see cref="Matrix"/>.</param>
         /// <param name="View">The View<see cref="Matrix"/>.</param>
         /// <param name="Projection">The Projection<see cref="Matrix"/>.</param>
-        public void Draw(Matrix World, Matrix View, Matrix Projection)
+        public void Draw( Matrix View, Matrix Projection)
         {
-            Column.Draw(World * Matrix.CreateTranslation(minSpace, 0, minSpace), View, Projection);
-            Column.Draw(World * Matrix.CreateTranslation(size - minSpace, 0, size - minSpace), View, Projection);
-            Column.Draw(World * Matrix.CreateTranslation(minSpace, 0, size - minSpace), View, Projection);
-            Column.Draw(World * Matrix.CreateTranslation(size - minSpace, 0, minSpace), View, Projection);
 
             Floor.Draw(QuadWorld, View, Projection);
             FloorExternal1.Draw(QuadWorld, View, Projection);
