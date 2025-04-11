@@ -12,10 +12,11 @@
     using TGC.MonoGame.TP.Components.Map;
     using TGC.MonoGame.TP.Components.Particles;
     using TGC.MonoGame.TP.Components.Player;
+    using TGC.MonoGame.TP.Components.Weapons;
 
     /// <summary>
-    /// Esta es la clase principal  del juego.
-    ///     Inicialmente puede ser renombrado o copiado para hacer más ejemplos chicos, en el caso de copiar para que se
+    ///     Esta es la clase principal del juego.
+    ///     Inicialmente puede ser renombrado o copiado para hacer mas ejemplos chicos, en el caso de copiar para que se
     ///     ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
     /// </summary>
     public class TGCGame : Game
@@ -57,7 +58,11 @@
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-
+            
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            
+            // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
@@ -90,7 +95,10 @@
         /// Weapons
         /// </summary>
         private Model Shotgun { get; set; }
-        private Model RocketLauncher { get; set; }
+        private Model RocketLauncherModel { get; set; }
+
+        private RocketLauncher RocketLauncher { get; set; }
+
         private Model MachineGun { get; set; }
         private Model GranadeLauncher { get; set; }
 
@@ -162,7 +170,7 @@
 
             // Initialize player
             Player = new Player(Camera.Position);
-            
+
             // Enable backface culling
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
@@ -172,8 +180,10 @@
             World = Matrix.CreateRotationY(MathHelper.Pi);
 
             Map = new Map();
-            
+
             Bullets = new List<Bullet>();
+
+            RocketLauncher = new RocketLauncher(new Vector3(450,0,450), new Vector3(0.05f));
 
             // Arranco el Game Pause en true para evitar que el jugador se mueva
             GamePause = true;
@@ -212,7 +222,7 @@
             modelEffect.DiffuseColor = Color.White.ToVector3();
             modelEffect.EnableDefaultLighting();
 
-            RocketLauncher = Content.Load<Model>(ContentFolder3D + "rocketLauncher/rocketLauncher");
+            RocketLauncherModel = Content.Load<Model>(ContentFolder3D + "rocketLauncher/rocketLauncher");
             MachineGun = Content.Load<Model>(ContentFolder3D + "mahineGun/machineGun");
             GranadeLauncher = Content.Load<Model>(ContentFolder3D + "granadeLauncher/granadeLauncher");
 
@@ -352,9 +362,9 @@
             shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(250, 15 * MathF.Sin( (float)gameTime.TotalGameTime.TotalSeconds) - 25, 250), Vector3.UnitZ, Vector3.UnitY);
             Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
 
-            shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(450, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 450), Vector3.UnitZ, Vector3.UnitY);
-            RocketLauncher.Draw(shotgunWorld, Camera.View, Camera.Projection);
-
+            //shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(450, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 450), Vector3.UnitZ, Vector3.UnitY);
+            //RocketLauncherModel.Draw(shotgunWorld, Camera.View, Camera.Projection);
+            RocketLauncher.Draw(RocketLauncherModel,Camera.View, Camera.Projection, (float)gameTime.TotalGameTime.TotalSeconds);
             shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(650, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 650), Vector3.UnitZ, Vector3.UnitY);
             MachineGun.Draw(shotgunWorld, Camera.View, Camera.Projection);
 
