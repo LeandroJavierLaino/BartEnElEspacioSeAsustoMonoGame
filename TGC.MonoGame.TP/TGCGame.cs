@@ -25,6 +25,7 @@
         /// Defines the ContentFolder3D.
         /// </summary>
         public const string ContentFolder3D = "Models/";
+        public const string ContentFolder3Ds = "3D/";
 
         /// <summary>
         /// Defines the ContentFolderEffect.
@@ -105,9 +106,11 @@
         /// <summary>
         /// Power ups
         /// </summary>
-          private Model RedArmor { get; set; }
+        private Model RedArmor { get; set; }
 
         private Model LargeCross { get; set; }
+        private Model TGCitoEnemy { get; set; }
+
         private float Recoil { get; set; }
         /// <summary>
         /// Gets or sets the World.
@@ -204,10 +207,21 @@
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             var texture = Content.Load<Texture2D>(ContentFolderTextures + "ccreteflr016a_COLOR");
+            /*
+             skull003 by Jake K-H [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/bjf0z6Qb9Tv)
+             */
+           // TGCitoEnemy = Content.Load<Model>(ContentFolder3D + "tgcito-classic/tgcito-classic");
+            var floorEffect = Content.Load<Effect>(ContentFolderEffect + "FloorShader");
+            /*
+             Tentacle by Quaternius (https://poly.pizza/m/BR1vpIvvvv)
+             */
+            /*
+             Pillar by Kay Lousberg (https://poly.pizza/m/1nt8n3rVKU)
+             */
 
             particle = new Particle(GraphicsDevice, Vector3.One * 300, Vector3.UnitZ, Vector3.Up, 100, 100, texture, 1);
 
-            Map.LoadContent(texture,GraphicsDevice);
+            Map.LoadContent(texture,GraphicsDevice, floorEffect);
 
             // Load bullet model
             BulletModel = Content.Load<Model>(ContentFolder3D + "bullet/Bullet_9x19");
@@ -256,11 +270,12 @@
         /// <param name="gameTime">The gameTime<see cref="GameTime"/>.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Escape))
                 // Exit game
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.P))
+            if (keyboardState.IsKeyDown(Keys.P))
             {
                 // Pause/Start game
                 GamePause = !GamePause;
@@ -269,12 +284,12 @@
             // If GamePause is false i can move and play
             if (!GamePause)
             {
-                Camera.Update(gameTime);
-                Player.SetPosition(Camera.Position);
-            
                 // Creates new bullets when left click
                 var mouse = Mouse.GetState();
 
+                Camera.Update(gameTime);
+                Player.SetPosition(Camera.Position);
+                
                 if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
                 {
                     Bullet singleBullet = new Bullet();
@@ -309,6 +324,21 @@
                     Bullets.Clear();
                 }
 
+                if (mouse.LeftButton == ButtonState.Pressed && Recoil == 0)
+                {
+                    Recoil = 10;
+                }
+
+                if (mouse.RightButton == ButtonState.Pressed && Recoil == 0)
+                {
+                    Recoil = 13.5f;
+                }
+
+                if (Recoil > 0)
+                {
+                    Recoil -= 0.25f;
+                }
+
                 Player.SetPosition(Camera.Position);
             }
 
@@ -326,17 +356,7 @@
 
             GraphicsDevice.Clear(Color.Black);
            
-            var mouse = Mouse.GetState();
-            if (mouse.LeftButton == ButtonState.Pressed && Recoil == 0)
-            {
-                Recoil = 10;
-            }
-            if (mouse.RightButton == ButtonState.Pressed && Recoil == 0)
-            {
-                Recoil = 13.5f;
-            }
-
-            Map.Draw(Camera.View, Camera.Projection);
+            Map.Draw(Camera.View, Camera.Projection, Camera.Position);
             
             foreach(Bullet bullet in Bullets)
             {
@@ -347,12 +367,7 @@
                     BulletModel.Draw(Matrix.CreateScale(5) * Matrix.CreateWorld(BulletPosition, -BulletRight, bullet.GetDirection()), Camera.View, Camera.Projection); 
                 }
             }
-         
-            if (Recoil > 0)
-            {
-                Recoil -= 0.25f;
-            }
-                        
+                  
             Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
             Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -25, 0) + Camera.FrontDirection * MathHelper.Lerp(80, 65, Recoil) + cameraRight * 25 - Camera.UpDirection * 4;
             Matrix shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);

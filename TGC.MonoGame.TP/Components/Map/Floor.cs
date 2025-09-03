@@ -20,12 +20,20 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <param name="texture">The texture to use.</param>
         /// <param name="textureRepeats">Times to repeat the given texture.</param>
         public Floor(GraphicsDevice graphicsDevice, Vector3 origin, Vector3 normal, Vector3 up, float width,
-            float height, Texture2D texture, float textureRepeats)
+            float height, Texture2D texture, float textureRepeats, Effect effect)
         {
-            Effect = new BasicEffect(graphicsDevice);
-            Effect.TextureEnabled = true;
-            Effect.Texture = texture;
-            Effect.EnableDefaultLighting();
+            Effect = effect;
+            Effect.Parameters["baseTexture"]?.SetValue(texture);
+            Effect.Parameters["ambientColor"]?.SetValue(Color.Red.ToVector3());
+            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["specularColor"]?.SetValue(Color.Wheat.ToVector3());
+            
+            Effect.Parameters["lightPosition"]?.SetValue(Vector3.Up * 40f + Vector3.UnitX * 750f);
+
+            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
+            Effect.Parameters["KDiffuse"]?.SetValue(0.3f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.8f);
+            Effect.Parameters["shininess"]?.SetValue(64f);
 
             Origin = origin;
             Normal = normal;
@@ -88,7 +96,7 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <summary>
         ///     Used to set and query effects and choose techniques.
         /// </summary>
-        public BasicEffect Effect { get; }
+        public Effect Effect { get; }
 
         /// <summary>
         ///     Create a vertex buffer for the figure with the given information.
@@ -146,12 +154,13 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <param name="world">The world matrix for this box.</param>
         /// <param name="view">The view matrix, normally from the camera.</param>
         /// <param name="projection">The projection matrix, normally from the application.</param>
-        public void Draw(Matrix world, Matrix view, Matrix projection)
+        public void Draw(Matrix world, Matrix view, Matrix projection,Vector3 eyePosition)
         {
             // Set BasicEffect parameters.
-            Effect.World = world;
-            Effect.View = view;
-            Effect.Projection = projection;
+            Effect.Parameters["World"].SetValue(world);
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["eyePosition"]?.SetValue(eyePosition);
 
             // Draw the model, using BasicEffect.
             Draw(Effect);
