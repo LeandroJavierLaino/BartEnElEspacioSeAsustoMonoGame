@@ -9,41 +9,6 @@ namespace TGC.MonoGame.TP.Components.Map
     class Floor
     {
         /// <summary>
-        ///     Create a textured quad.
-        /// </summary>
-        /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        /// <param name="origin">The center.</param>
-        /// <param name="normal">Normal vector.</param>
-        /// <param name="up">Up vector.</param>
-        /// <param name="width">The Width.</param>
-        /// <param name="height">The High.</param>
-        /// <param name="texture">The texture to use.</param>
-        /// <param name="textureRepeats">Times to repeat the given texture.</param>
-        public Floor(GraphicsDevice graphicsDevice, Vector3 origin, Vector3 normal, Vector3 up, float width,
-            float height, Texture2D texture, float textureRepeats, Effect effect)
-        {
-            Effect = effect;
-            Effect.Parameters["baseTexture"]?.SetValue(texture);
-            Effect.Parameters["ambientColor"]?.SetValue(Color.Red.ToVector3());
-            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["specularColor"]?.SetValue(Color.Wheat.ToVector3());
-            
-            Effect.Parameters["lightPosition"]?.SetValue(Vector3.Up * 40f + Vector3.UnitX * 750f);
-
-            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
-            Effect.Parameters["KDiffuse"]?.SetValue(0.3f);
-            Effect.Parameters["KSpecular"]?.SetValue(0.8f);
-            Effect.Parameters["shininess"]?.SetValue(64f);
-
-            Origin = origin;
-            Normal = normal;
-            Up = up;
-
-            CreateVertexBuffer(graphicsDevice, width, height, textureRepeats);
-            CreateIndexBuffer(graphicsDevice);
-        }
-
-        /// <summary>
         ///     Represents a list of 3D vertices to be streamed to the graphics device.
         /// </summary>
         private VertexBuffer Vertices { get; set; }
@@ -97,6 +62,45 @@ namespace TGC.MonoGame.TP.Components.Map
         ///     Used to set and query effects and choose techniques.
         /// </summary>
         public Effect Effect { get; }
+
+        public Texture2D Texture { get; set; }
+        /// <summary>
+        ///     Create a textured quad.
+        /// </summary>
+        /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
+        /// <param name="origin">The center.</param>
+        /// <param name="normal">Normal vector.</param>
+        /// <param name="up">Up vector.</param>
+        /// <param name="width">The Width.</param>
+        /// <param name="height">The High.</param>
+        /// <param name="texture">The texture to use.</param>
+        /// <param name="textureRepeats">Times to repeat the given texture.</param>
+        public Floor(GraphicsDevice graphicsDevice, Vector3 origin, Vector3 normal, Vector3 up, float width,
+            float height, Texture2D texture, float textureRepeats, Effect effect)
+        {
+            Texture = texture; 
+            Effect = effect;
+            Effect.Parameters["baseTexture"]?.SetValue(texture);
+            Effect.Parameters["ambientColor"]?.SetValue(Color.Red.ToVector3());
+            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["specularColor"]?.SetValue(Color.Wheat.ToVector3());
+            
+            Effect.Parameters["lightPosition"]?.SetValue(Vector3.Up * 40f + Vector3.UnitX * 750f);
+
+            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
+            Effect.Parameters["KDiffuse"]?.SetValue(0.3f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.8f);
+            Effect.Parameters["shininess"]?.SetValue(64f);
+
+            Origin = origin;
+            Normal = normal;
+            Up = up;
+
+            CreateVertexBuffer(graphicsDevice, width, height, textureRepeats);
+            CreateIndexBuffer(graphicsDevice);
+        }
+
+
 
         /// <summary>
         ///     Create a vertex buffer for the figure with the given information.
@@ -157,6 +161,7 @@ namespace TGC.MonoGame.TP.Components.Map
         public void Draw(Matrix world, Matrix view, Matrix projection,Vector3 eyePosition)
         {
             // Set BasicEffect parameters.
+            Effect.Parameters["baseTexture"]?.SetValue(Texture);
             Effect.Parameters["World"].SetValue(world);
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);

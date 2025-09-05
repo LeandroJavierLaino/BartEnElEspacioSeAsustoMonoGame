@@ -77,18 +77,6 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    /*
-    // Convert normalized coordinates to pixel coordinates
-    originalUV *= float2(960, 540); // Change to match your game's resolution
-    
-    // Round down to the nearest multiple of pixelation to create blocks
-    float2 newUV;
-    newUV.x = round(originalUV.x / pixelation) * pixelation;
-    newUV.y = round(originalUV.y / pixelation) * pixelation;
-    
-    // Convert back to normalized coordinates
-    newUV /= float2(960, 540);
-    */
     // Base vectors
     float3 lightDirection = normalize(lightPosition - input.WorldPosition.xyz);
     float3 viewDirection = normalize(eyePosition - input.WorldPosition.xyz);

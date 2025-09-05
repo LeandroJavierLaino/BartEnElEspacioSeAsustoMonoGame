@@ -6,6 +6,7 @@
     using Microsoft.Xna.Framework.Media;
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using TGC.MonoGame.TP.Components.Bullet;
     using TGC.MonoGame.TP.Components.Camera;
     using TGC.MonoGame.TP.Components.Enemy;
@@ -147,6 +148,9 @@
         /// </summary>
         private Map Map { get; set; }
 
+        private Texture2D TGCitoTexture { get; set; }
+        private Effect TGCitoEffect { get; set; }
+
         /// <summary>
         /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -207,11 +211,11 @@
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             var texture = Content.Load<Texture2D>(ContentFolderTextures + "ccreteflr016a_COLOR");
-            /*
-             skull003 by Jake K-H [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/bjf0z6Qb9Tv)
-             */
-           // TGCitoEnemy = Content.Load<Model>(ContentFolder3D + "tgcito-classic/tgcito-classic");
-            var floorEffect = Content.Load<Effect>(ContentFolderEffect + "FloorShader");
+        
+            TGCitoEnemy = Content.Load<Model>(ContentFolder3D + "tgcitohead/tgcitohead");
+            Texture2D TGCitoTexture = TGCitoEnemy.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+            
+            var pixelatedEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelated");
             /*
              Tentacle by Quaternius (https://poly.pizza/m/BR1vpIvvvv)
              */
@@ -221,7 +225,20 @@
 
             particle = new Particle(GraphicsDevice, Vector3.One * 300, Vector3.UnitZ, Vector3.Up, 100, 100, texture, 1);
 
-            Map.LoadContent(texture,GraphicsDevice, floorEffect);
+            Map.LoadContent(texture, GraphicsDevice, pixelatedEffect);
+
+            TGCitoEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelatedModels"); ;
+            TGCitoEffect.Parameters["baseTexture"]?.SetValue(TGCitoTexture);
+            TGCitoEffect.Parameters["ambientColor"]?.SetValue(Color.Red.ToVector3());
+            TGCitoEffect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
+            TGCitoEffect.Parameters["specularColor"]?.SetValue(Color.Wheat.ToVector3());
+
+            TGCitoEffect.Parameters["lightPosition"]?.SetValue(Vector3.Up * 40f + Vector3.UnitX * 750f);
+
+            TGCitoEffect.Parameters["KAmbient"]?.SetValue(0.1f);
+            TGCitoEffect.Parameters["KDiffuse"]?.SetValue(0.3f);
+            TGCitoEffect.Parameters["KSpecular"]?.SetValue(0.8f);
+            TGCitoEffect.Parameters["shininess"]?.SetValue(64f);          
 
             // Load bullet model
             BulletModel = Content.Load<Model>(ContentFolder3D + "bullet/Bullet_9x19");
@@ -354,9 +371,9 @@
         {
             base.Draw(gameTime);
 
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Green);
            
-            Map.Draw(Camera.View, Camera.Projection, Camera.Position);
+            
             
             foreach(Bullet bullet in Bullets)
             {
@@ -367,7 +384,26 @@
                     BulletModel.Draw(Matrix.CreateScale(5) * Matrix.CreateWorld(BulletPosition, -BulletRight, bullet.GetDirection()), Camera.View, Camera.Projection); 
                 }
             }
-                  
+
+            Matrix tgcitoWorld = Matrix.CreateWorld(Vector3.One * 100 + Vector3.Up * -50 , Vector3.UnitZ, Vector3.Up) ;
+            //TGCitoEnemy.Draw(tgcitoWorld, Camera.View, Camera.Projection);
+            
+            foreach (ModelMesh mesh in TGCitoEnemy.Meshes )
+            {
+                
+                foreach(ModelMeshPart modelMeshPart in mesh.MeshParts)
+                {
+                    TGCitoEffect.Parameters["World"].SetValue(tgcitoWorld);
+                    TGCitoEffect.Parameters["View"].SetValue(Camera.View);
+                    TGCitoEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                    modelMeshPart.Effect = TGCitoEffect;
+                }
+
+                mesh.Draw();
+            }
+
+            Map.Draw(Camera.View, Camera.Projection, Camera.Position);
+
             Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
             Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -25, 0) + Camera.FrontDirection * MathHelper.Lerp(80, 65, Recoil) + cameraRight * 25 - Camera.UpDirection * 4;
             Matrix shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
