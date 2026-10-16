@@ -76,21 +76,12 @@ namespace TGC.MonoGame.TP.Components.Map
         /// <param name="texture">The texture to use.</param>
         /// <param name="textureRepeats">Times to repeat the given texture.</param>
         public Floor(GraphicsDevice graphicsDevice, Vector3 origin, Vector3 normal, Vector3 up, float width,
-            float height, Texture2D texture, float textureRepeats, Effect effect)
+            float height, Texture2D texture, float textureRepeats, Effect effect, Vector3 lightPosition)
         {
             Texture = texture; 
             Effect = effect;
             Effect.Parameters["baseTexture"]?.SetValue(texture);
-            Effect.Parameters["ambientColor"]?.SetValue(Color.Red.ToVector3());
-            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["specularColor"]?.SetValue(Color.Wheat.ToVector3());
-            
-            Effect.Parameters["lightPosition"]?.SetValue(Vector3.Up * 40f + Vector3.UnitX * 750f);
-
-            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
-            Effect.Parameters["KDiffuse"]?.SetValue(0.3f);
-            Effect.Parameters["KSpecular"]?.SetValue(0.8f);
-            Effect.Parameters["shininess"]?.SetValue(64f);
+            // La luz y el material se configuran de forma centralizada en SceneLight.
 
             Origin = origin;
             Normal = normal;

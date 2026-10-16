@@ -6,13 +6,14 @@
     using Microsoft.Xna.Framework.Media;
     using System;
     using System.Collections.Generic;
-    using System.Reflection;
     using TGC.MonoGame.TP.Components.Bullet;
     using TGC.MonoGame.TP.Components.Camera;
     using TGC.MonoGame.TP.Components.Enemy;
+    using TGC.MonoGame.TP.Components.Lighting;
     using TGC.MonoGame.TP.Components.Map;
     using TGC.MonoGame.TP.Components.Particles;
     using TGC.MonoGame.TP.Components.Player;
+    using TGC.MonoGame.TP.Components.PowerUps;
     using TGC.MonoGame.TP.Components.Weapons;
 
     /// <summary>
@@ -26,7 +27,6 @@
         /// Defines the ContentFolder3D.
         /// </summary>
         public const string ContentFolder3D = "Models/";
-        public const string ContentFolder3Ds = "3D/";
 
         /// <summary>
         /// Defines the ContentFolderEffect.
@@ -88,6 +88,8 @@
         /// </summary>
         private Model Column { get; set; }
         private Effect RedIlluminationEffect { get; set; }
+        private Vector3 LightPosition { get; set; }
+        private SceneLight Light { get; set; }
         private Model BulletModel { get; set; }
         private List<Bullet> Bullets { get; set; }
         private Floor Floor { get; set; }
@@ -98,20 +100,25 @@
         /// </summary>
         private Model Shotgun { get; set; }
         private Model RocketLauncherModel { get; set; }
-
-        private RocketLauncher RocketLauncher { get; set; }
-
-        private Model MachineGun { get; set; }
-        private Model GranadeLauncher { get; set; }
-
+        private Model MachineGunModel { get; set; }
+        private Model GranadeLauncherModel { get; set; }
+        private WeaponCollect RocketLauncherCollect { get; set; }
+        private WeaponCollect MachineGunCollect { get; set; }
+        private WeaponCollect GranadeLauncherCollect { get; set; }
+       
         /// <summary>
         /// Power ups
         /// </summary>
         private Model RedArmor { get; set; }
-
         private Model LargeCross { get; set; }
-        private Model TGCitoEnemy { get; set; }
+        private PowerUpCollect RedArmorCollect { get; set; }
+        private PowerUpCollect LargeCrossCollect { get; set; }
 
+
+        /// <summary>
+        /// Enemy
+        /// </summary>
+        private Model TGCitoEnemyModel { get; set; }
         private float Recoil { get; set; }
         /// <summary>
         /// Gets or sets the World.
@@ -147,9 +154,10 @@
         /// Gets or sets the Map.
         /// </summary>
         private Map Map { get; set; }
-
         private Texture2D TGCitoTexture { get; set; }
         private Effect TGCitoEffect { get; set; }
+        private Enemy TGCitoEnemy { get; set; }
+        private WeaponFPS PlayerWeapon { get; set; }
 
         /// <summary>
         /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -168,7 +176,7 @@
             Graphics.ApplyChanges();
 
             ClickPressed = false;
-
+            
             // Initialize Camera
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitZ * 350, screenSize);
@@ -180,7 +188,7 @@
 
             // Enable backface culling
             var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
+            rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
             // Create World matrix
@@ -189,8 +197,6 @@
             Map = new Map();
 
             Bullets = new List<Bullet>();
-
-            RocketLauncher = new RocketLauncher(new Vector3(450,0,450), new Vector3(0.05f));
 
             // Arranco el Game Pause en true para evitar que el jugador se mueva
             GamePause = true;
@@ -211,71 +217,59 @@
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             var texture = Content.Load<Texture2D>(ContentFolderTextures + "ccreteflr016a_COLOR");
-        
-            TGCitoEnemy = Content.Load<Model>(ContentFolder3D + "tgcitohead/tgcitohead");
-            Texture2D TGCitoTexture = TGCitoEnemy.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
-            
-            var pixelatedEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelated");
-            /*
-             Tentacle by Quaternius (https://poly.pizza/m/BR1vpIvvvv)
-             */
-            /*
-             Pillar by Kay Lousberg (https://poly.pizza/m/1nt8n3rVKU)
-             */
+            LightPosition = new Vector3(1500f, 120f, 1500f);
 
-            particle = new Particle(GraphicsDevice, Vector3.One * 300, Vector3.UnitZ, Vector3.Up, 100, 100, texture, 1);
+            // Punto único de configuración de la luz para todo modelo que use el shader
+            Light = new SceneLight { Position = LightPosition };
 
-            Map.LoadContent(texture, GraphicsDevice, pixelatedEffect);
+            TGCitoEnemyModel = Content.Load<Model>(ContentFolder3D + "tgcitohead/tgcitohead");
+            Texture2D TGCitoTexture = TGCitoEnemyModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+
+            //var pixelatedEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelated");
+            TGCitoEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelatedModels");
+
+            // Aplico la configuración de luz centralizada al effect compartido
+            Light.Apply(TGCitoEffect);
+
+            Map.LoadContent(texture, GraphicsDevice, TGCitoEffect, LightPosition);
 
             TGCitoEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelatedModels"); ;
-            TGCitoEffect.Parameters["baseTexture"]?.SetValue(TGCitoTexture);
-            TGCitoEffect.Parameters["ambientColor"]?.SetValue(Color.Red.ToVector3());
-            TGCitoEffect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
-            TGCitoEffect.Parameters["specularColor"]?.SetValue(Color.Wheat.ToVector3());
+            
+            TGCitoEnemy = new Enemy(TGCitoEnemyModel, TGCitoEffect, TGCitoTexture, LightPosition);
+            TGCitoEnemy.SetPosition(new Vector3(200, 50, 200));
 
-            TGCitoEffect.Parameters["lightPosition"]?.SetValue(Vector3.Up * 40f + Vector3.UnitX * 750f);
-
-            TGCitoEffect.Parameters["KAmbient"]?.SetValue(0.1f);
-            TGCitoEffect.Parameters["KDiffuse"]?.SetValue(0.3f);
-            TGCitoEffect.Parameters["KSpecular"]?.SetValue(0.8f);
-            TGCitoEffect.Parameters["shininess"]?.SetValue(64f);          
+            Model FPSWeaponModel = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
+            Texture2D FPSWeaponTexture = FPSWeaponModel.Meshes[0].MeshParts[1].Effect.Parameters["Texture"].GetValueTexture2D();
+            PlayerWeapon = new WeaponFPS(FPSWeaponModel, TGCitoEffect, FPSWeaponTexture, LightPosition);
 
             // Load bullet model
             BulletModel = Content.Load<Model>(ContentFolder3D + "bullet/Bullet_9x19");
-            var modelEffectBullet = (BasicEffect)BulletModel.Meshes[0].Effects[0];
-            modelEffectBullet.DiffuseColor = Color.White.ToVector3();
-            modelEffectBullet.EnableDefaultLighting();
-
-            // Load shotgun model
-            Shotgun = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
- 
-            var modelEffect = (BasicEffect)Shotgun.Meshes[0].Effects[0];
-            modelEffect.DiffuseColor = Color.White.ToVector3();
-            modelEffect.EnableDefaultLighting();
 
             RocketLauncherModel = Content.Load<Model>(ContentFolder3D + "rocketLauncher/rocketLauncher");
-            MachineGun = Content.Load<Model>(ContentFolder3D + "mahineGun/machineGun");
-            GranadeLauncher = Content.Load<Model>(ContentFolder3D + "granadeLauncher/granadeLauncher");
+            Texture2D RocketLauncherTexture = RocketLauncherModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+            RocketLauncherCollect = new WeaponCollect(RocketLauncherModel, TGCitoEffect, RocketLauncherTexture, new Vector3(450f, 0f, 450f), LightPosition);
+
+            MachineGunModel = Content.Load<Model>(ContentFolder3D + "mahineGun/machineGun");
+            Texture2D machineGunTexture2D = MachineGunModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+            MachineGunCollect = new WeaponCollect(MachineGunModel, TGCitoEffect, machineGunTexture2D, new Vector3(650f, 0f, 650f), LightPosition);
+
+            GranadeLauncherModel = Content.Load<Model>(ContentFolder3D + "granadeLauncher/granadeLauncher");
+            Texture2D granadeLauncherTexture2D = GranadeLauncherModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+            GranadeLauncherCollect = new WeaponCollect(GranadeLauncherModel, TGCitoEffect, granadeLauncherTexture2D, new Vector3(850f, 0f, 850f), LightPosition);
 
             RedArmor = Content.Load<Model>(ContentFolder3D + "redArmor/redArmor");
-            LargeCross = Content.Load<Model>(ContentFolder3D + "largeCross/largeCross");
+            Texture2D redArmorTexture2D = RedArmor.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+            RedArmorCollect = new PowerUpCollect(RedArmor, TGCitoEffect, redArmorTexture2D, new Vector3(250f, 0f, 250f), LightPosition);
 
-            Song = Content.Load<Song>(ContentFolderMusic + "doom-ost-damnation");
+            LargeCross = Content.Load<Model>(ContentFolder3D + "largeCross/largeCross");
+            Texture2D largeCrossTexture2D = LargeCross.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
+            LargeCrossCollect = new PowerUpCollect(LargeCross, TGCitoEffect, largeCrossTexture2D, new Vector3(1050f, 0f, 1050f), LightPosition);
+
+            Song = Content.Load<Song>(ContentFolderMusic + "doom-game");
+            MediaPlayer.Volume = 50;
             MediaPlayer.IsRepeating = true;
             //MediaPlayer.Play(Song);
-
-            // Change the BasicShader name
-            RedIlluminationEffect = Content.Load<Effect>(ContentFolderEffect + "BasicShader");
             
-            RedIlluminationEffect.Parameters["ambientColor"].SetValue(Color.Red.ToVector3());
-            RedIlluminationEffect.Parameters["diffuseColor"].SetValue(Color.White.ToVector3());
-            RedIlluminationEffect.Parameters["specularColor"].SetValue(Color.Wheat.ToVector3());
-
-            RedIlluminationEffect.Parameters["KAmbient"].SetValue(0.4f);
-            RedIlluminationEffect.Parameters["KDiffuse"].SetValue(0.85f);
-            RedIlluminationEffect.Parameters["KSpecular"].SetValue(0.15f);
-            RedIlluminationEffect.Parameters["shininess"].SetValue(100f);
-
             base.LoadContent();
         }
 
@@ -356,7 +350,9 @@
                     Recoil -= 0.25f;
                 }
 
+                PlayerWeapon.Update(Camera.Position, Recoil);
                 Player.SetPosition(Camera.Position);
+                TGCitoEnemy.Update(Camera.Position, [],Player.GetPosition());
             }
 
             base.Update(gameTime);
@@ -371,10 +367,11 @@
         {
             base.Draw(gameTime);
 
-            GraphicsDevice.Clear(Color.Green);
-           
-            
-            
+            GraphicsDevice.Clear(Color.Black);
+
+            // Reaplico la luz centralizada para que ningún componente la pise
+            Light.Apply(TGCitoEffect);
+
             foreach(Bullet bullet in Bullets)
             {
                 Vector3 BulletRight = Vector3.Cross(bullet.GetDirection(), bullet.GetUp());
@@ -385,49 +382,21 @@
                 }
             }
 
-            Matrix tgcitoWorld = Matrix.CreateWorld(Vector3.One * 100 + Vector3.Up * -50 , Vector3.UnitZ, Vector3.Up) ;
-            //TGCitoEnemy.Draw(tgcitoWorld, Camera.View, Camera.Projection);
-            
-            foreach (ModelMesh mesh in TGCitoEnemy.Meshes )
-            {
-                
-                foreach(ModelMeshPart modelMeshPart in mesh.MeshParts)
-                {
-                    TGCitoEffect.Parameters["World"].SetValue(tgcitoWorld);
-                    TGCitoEffect.Parameters["View"].SetValue(Camera.View);
-                    TGCitoEffect.Parameters["Projection"].SetValue(Camera.Projection);
-                    modelMeshPart.Effect = TGCitoEffect;
-                }
-
-                mesh.Draw();
-            }
+            TGCitoEnemy.Draw(Camera.View, Camera.Projection, Camera.Position);
 
             Map.Draw(Camera.View, Camera.Projection, Camera.Position);
 
-            Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
-            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -25, 0) + Camera.FrontDirection * MathHelper.Lerp(80, 65, Recoil) + cameraRight * 25 - Camera.UpDirection * 4;
-            Matrix shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
+            // Player
+            PlayerWeapon.Draw(Camera.View, Camera.Projection, Camera);
 
-            Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
+            // Weapons collectables
+            RocketLauncherCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, false);
+            MachineGunCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, true);
+            GranadeLauncherCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, false);
 
-            shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(250, 15 * MathF.Sin( (float)gameTime.TotalGameTime.TotalSeconds) - 25, 250), Vector3.UnitZ, Vector3.UnitY);
-            Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
-
-            //shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(450, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 450), Vector3.UnitZ, Vector3.UnitY);
-            //RocketLauncherModel.Draw(shotgunWorld, Camera.View, Camera.Projection);
-            RocketLauncher.Draw(RocketLauncherModel,Camera.View, Camera.Projection, (float)gameTime.TotalGameTime.TotalSeconds);
-            shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(650, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 650), Vector3.UnitZ, Vector3.UnitY);
-            MachineGun.Draw(shotgunWorld, Camera.View, Camera.Projection);
-
-            shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(850, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 850), Vector3.UnitZ, Vector3.UnitY);
-            GranadeLauncher.Draw(shotgunWorld, Camera.View, Camera.Projection);
-
-
-            shotgunWorld = Matrix.CreateScale(0.025f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(100, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 100), Vector3.UnitZ, Vector3.UnitY);
-            RedArmor.Draw(shotgunWorld, Camera.View, Camera.Projection);
-
-            shotgunWorld = Matrix.CreateScale(0.05f) * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateWorld(new Vector3(100, 15 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) - 25, 300), Vector3.UnitZ, Vector3.UnitY);
-            LargeCross.Draw(shotgunWorld, Camera.View, Camera.Projection);
+            // Power ups collectables
+            RedArmorCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, false);
+            LargeCrossCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, false);
         }
 
         /// <summary>

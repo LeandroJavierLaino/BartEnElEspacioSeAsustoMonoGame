@@ -32,6 +32,13 @@ float3 eyePosition; // Camera position
 
 float Time = 0;
 
+// Debug: when > 0.5 the pixel shader outputs the normals as color
+float DebugNormals = 0;
+
+// Attenuation coefficients (tuned for the world scale). Lower = larger light radius.
+float LightLinearAttenuation = 0.0007;
+float LightQuadraticAttenuation = 0.0000018;
+
 texture baseTexture;
 sampler2D textureSampler = sampler_state
 {
@@ -63,20 +70,38 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     VertexShaderOutput output = (VertexShaderOutput) 0;
     // Model space to World space
     float4 worldPosition = mul(input.Position, World);
-    // World space to View space
-    float4 viewPosition = mul(worldPosition, View);
-	// View space to Projection space
-    output.Position = mul(viewPosition, Projection);
-    
-    output.Normal = mul(input.Normal, InverseTransposeWorld);
+    // View space to Projection space
+    float4x4 WorldView = mul(World, View);
+    float4x4 WorldViewProjection = mul(WorldView, Projection);
+    output.Position = mul(input.Position, WorldViewProjection);
+    output.Normal = normalize(mul(input.Normal, InverseTransposeWorld));
     output.WorldPosition = worldPosition;
     output.TextureCoordinates = input.TextureCoordinates;
 
     return output;
 }
 
+// Converts a normal (-1..1) into a visible color (0..1) for debugging
+float4 NormalToColor(float3 normal)
+{
+    return float4(normal * 0.5 + 0.5, 1.0);
+}
+
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
+    float3 normal = normalize(input.Normal.xyz);
+
+    // Debug mode: visualize the normals directly
+    if (DebugNormals > 0.5)
+    {
+        // Red = broken / missing normal
+        /*if (length(input.Normal.xyz) < 0.1)
+            return float4(1.0, 0.0, 0.0, 1.0);*/
+
+        // X -> Red, Y -> Green, Z -> Blue
+        return NormalToColor(normal);
+    }
+
     // Base vectors
     float3 lightDirection = normalize(lightPosition - input.WorldPosition.xyz);
     float3 viewDirection = normalize(eyePosition - input.WorldPosition.xyz);
@@ -84,40 +109,34 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 
     //Ambient Light
     float3 ambientLight = KAmbient * ambientColor;
-    float pixelation = 2.25;
+    float pixelation = 2.75;
     float textureSize = 512.0;
-    // Round down to the nearest multiple of pixelation to create blocks
+    // Round to the nearest multiple of pixelation to create blocks
     float2 newUV;
     newUV.x = round(input.TextureCoordinates.x * textureSize / pixelation) * pixelation;
     newUV.y = round(input.TextureCoordinates.y * textureSize / pixelation) * pixelation;
-    
+
     newUV.x /= textureSize;
     newUV.y /= textureSize;
-    
+
     // Get the texture texel
     float4 texelColor = tex2D(textureSampler, newUV);
 
     // Diffuse Light
-    float distanceAttenuation = length(lightPosition - input.WorldPosition.xyz);
-    float singleDistanceAttenuation = distanceAttenuation;
-    distanceAttenuation = distanceAttenuation * distanceAttenuation;
-    
-	// Calculate the diffuse light
-    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
-    lightDirection = normalize(distanceAttenuation);
-    float3 normal = normalize(input.Normal.xyz);
+    float distance = length(lightPosition - input.WorldPosition.xyz);
+    // Attenuation: parametrized linear and quadratic coefficients
+    float attenuation = 1.0 / (1.0 + LightLinearAttenuation * distance + LightQuadraticAttenuation * distance * distance);
+
     float NdotL = dot(normal, lightDirection);
     float intensity = saturate(NdotL);
-    float3 diffuseLight = KDiffuse * diffuseColor * max(0.0, intensity) * 10;
+    float3 diffuseLight = KDiffuse * diffuseColor * intensity * attenuation;
 
     // Calculate the specular light
-    float NdotH = dot(normal, halfVector);
-    float3 specularLight = KSpecular * specularColor * pow(saturate(NdotH), shininess);
+    float NdotH = saturate(dot(normal, halfVector));
+    float3 specularLight = KSpecular * specularColor * pow(NdotH, shininess) * attenuation;
 
-    float linearLight = lerp(0, 2500, 1 / singleDistanceAttenuation);
-    float3 finalLinearDiffuseLight = diffuseColor * KDiffuse * (linearLight, linearLight, linearLight);
-
-    return float4(saturate(ambientLight.rgb + finalLinearDiffuseLight) * (texelColor.rgb) + specularLight, 1.0);
+    float3 finalColor = saturate(ambientLight + diffuseLight) * texelColor.rgb + specularLight;
+    return float4(finalColor, texelColor.a);
 }
 
 technique BasicColorDrawing

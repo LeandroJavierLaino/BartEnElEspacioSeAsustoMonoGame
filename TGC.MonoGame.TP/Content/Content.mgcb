@@ -306,7 +306,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/shotgun/shotgun.fbx
+/build:Models/shotgun/shotgun.fbx;Models/shotgun/shotgun
 
 #begin Models/tgcitohead/tgcitohead.fbx
 /importer:FbxImporter
@@ -326,6 +326,18 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Models/tgcitohead/tgcitohead.fbx
+
+#begin Music/doom-game.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/doom-game.mp3
+
+#begin Music/doom-menu.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/doom-menu.mp3
 
 #begin Music/doom-ost-damnation.mp3
 /importer:Mp3Importer

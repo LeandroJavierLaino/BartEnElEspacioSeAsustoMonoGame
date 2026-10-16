@@ -99,8 +99,8 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     lightDirection = normalize(distanceAttenuation);
     float3 normal = normalize(input.Normal.xyz);
     float NdotL = dot(normal, lightDirection);
-    //float intensity = saturate(NdotL);
-    float3 diffuseLight = KDiffuse * diffuseColor * max(0.0, NdotL) * 10 ;
+    float intensity = saturate(NdotL);
+    float3 diffuseLight = KDiffuse * diffuseColor * intensity * 10;
 
     // Calculate the specular light
     float NdotH = dot(normal, halfVector);
@@ -109,7 +109,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float linearLight = lerp(0, 250, 1 / singleDistanceAttenuation);
     float3 finalLinearDiffuseLight = diffuseColor * KDiffuse * (linearLight, linearLight, linearLight);
 
-    return float4(saturate(ambientLight.rbg + finalLinearDiffuseLight) * (texelColor.r * 0.7 + texelColor.g * 0.15 + texelColor.b * 0.15) + specularLight, 1.0);
+    return float4(saturate(ambientLight.rbg + finalLinearDiffuseLight) * texelColor.rgb + specularLight, 1.0);
 }
 
 technique BasicColorDrawing
