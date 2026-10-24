@@ -15,19 +15,20 @@ namespace TGC.MonoGame.TP.Components.Enemy
         private Model TGCitoEnemy { get; set; }
         private Effect TGCitoEffect { get; set; }
         private Texture2D Texture { get; set; }
-        private Vector3 LightPosition { get; set; }
+        private float MinHeight { get; set; }
 
-        private readonly int minDistance = 650;
+        private readonly int minDistance = 250;
 
-        public Enemy(Model tgcitoModel, Effect tgcitoEffect, Texture2D tgcitoTexture, Vector3 lightPosition)
+        public Enemy(Model tgcitoModel, Effect tgcitoEffect, Texture2D tgcitoTexture, Vector3 tgcitoPosition)
         {
             Random random = new();
-            this.Velocity = 0.5f * random.Next(1, 3);
+            this.Velocity = random.Next(1, 3) * 120f;
             this.Life = 130;
             this.TGCitoEnemy = tgcitoModel;
             this.TGCitoEffect = tgcitoEffect;
             this.Texture = tgcitoTexture;
-            this.LightPosition = lightPosition;
+            this.Position = tgcitoPosition;
+            this.MinHeight = tgcitoPosition.Y;
             this.TGCitoEffect.Parameters["baseTexture"]?.SetValue(tgcitoTexture);
             // La luz y el material se configuran de forma centralizada en SceneLight.
         }
@@ -72,14 +73,13 @@ namespace TGC.MonoGame.TP.Components.Enemy
             Life -= Damage;
         }
 
-        public void Update(Vector3 CameraPosition, List<Enemy> OtherEnemies, Vector3 PlayerPosition)
+        public void Update(List<Enemy> OtherEnemies, Vector3 PlayerPosition, GameTime gameTime)
         {
-            Vector3 distance = CameraPosition - this.Position;
-            this.Position += (distance) * Velocity/200;
+            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Vector3 direction = this.Position - PlayerPosition;
             direction.Normalize();
-            this.Direction = direction;
-
+            this.Direction = new Vector3(direction.X, 0, direction.Z);
+            
             foreach (Enemy enemy in OtherEnemies) 
             {
                 if (this != enemy && Vector3.Distance(this.Position,enemy.Position) < minDistance)
@@ -90,15 +90,25 @@ namespace TGC.MonoGame.TP.Components.Enemy
 
             if (Vector3.Distance(this.Position, PlayerPosition) < minDistance)
             {
+                
                 AvoidCollision(PlayerPosition);
             }
+            else
+            {
+                this.Position += new Vector3(-direction.X * Velocity * elapsedTime, MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds), -direction.Z * Velocity * elapsedTime);
+                if(this.Position.Y > this.MinHeight * 1.25f)
+                {
+                    this.Position = new Vector3(this.Position.X, this.MinHeight, this.Position.Z);
+                }
+            }
+
         }
 
         private void AvoidCollision(Vector3 EnemyPosition)
         {
             Vector3 direction = this.Position - EnemyPosition;
             direction.Normalize();
-            this.Position += direction;
+            this.Position += new Vector3(direction.X, 0, direction.Z);
         }
 
         public void Draw(Matrix View, Matrix Projection, Vector3 eyePosition)

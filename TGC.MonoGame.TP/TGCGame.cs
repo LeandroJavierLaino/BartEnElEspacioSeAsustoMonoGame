@@ -157,7 +157,8 @@
         private Texture2D TGCitoTexture { get; set; }
         private Effect TGCitoEffect { get; set; }
         private Enemy TGCitoEnemy { get; set; }
-        private WeaponFPS PlayerWeapon { get; set; }
+        private WeaponFPS ShotgunFPS { get; set; }
+        private WeaponFPS RocketLauncherFPS { get; set; }
 
         /// <summary>
         /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -235,12 +236,13 @@
 
             TGCitoEffect = Content.Load<Effect>(ContentFolderEffect + "BlingPhongPixelatedModels"); ;
             
-            TGCitoEnemy = new Enemy(TGCitoEnemyModel, TGCitoEffect, TGCitoTexture, LightPosition);
-            TGCitoEnemy.SetPosition(new Vector3(200, 50, 200));
+            TGCitoEnemy = new Enemy(TGCitoEnemyModel, TGCitoEffect, TGCitoTexture, new Vector3(200, 50, 200));
 
             Model FPSWeaponModel = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
             Texture2D FPSWeaponTexture = FPSWeaponModel.Meshes[0].MeshParts[1].Effect.Parameters["Texture"].GetValueTexture2D();
-            PlayerWeapon = new WeaponFPS(FPSWeaponModel, TGCitoEffect, FPSWeaponTexture, LightPosition);
+            ShotgunFPS = new WeaponFPS(FPSWeaponModel, TGCitoEffect, FPSWeaponTexture, WeaponKeys.Shotgun);
+            ShotgunFPS.SetActive(true);
+            Player.AddWeapon(ShotgunFPS);
 
             // Load bullet model
             BulletModel = Content.Load<Model>(ContentFolder3D + "bullet/Bullet_9x19");
@@ -248,6 +250,10 @@
             RocketLauncherModel = Content.Load<Model>(ContentFolder3D + "rocketLauncher/rocketLauncher");
             Texture2D RocketLauncherTexture = RocketLauncherModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
             RocketLauncherCollect = new WeaponCollect(RocketLauncherModel, TGCitoEffect, RocketLauncherTexture, new Vector3(450f, 0f, 450f), LightPosition);
+
+            RocketLauncherFPS = new WeaponFPS(RocketLauncherModel, TGCitoEffect, RocketLauncherTexture, WeaponKeys.RocketLauncher);
+            
+            Player.AddWeapon(RocketLauncherFPS);
 
             MachineGunModel = Content.Load<Model>(ContentFolder3D + "mahineGun/machineGun");
             Texture2D machineGunTexture2D = MachineGunModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
@@ -350,9 +356,10 @@
                     Recoil -= 0.25f;
                 }
 
-                PlayerWeapon.Update(Camera.Position, Recoil);
+                ShotgunFPS.Update(Camera.Position, Recoil, gameTime);
+                RocketLauncherFPS.Update(Camera.Position, Recoil, gameTime);
                 Player.SetPosition(Camera.Position);
-                TGCitoEnemy.Update(Camera.Position, [],Player.GetPosition());
+                TGCitoEnemy.Update( [],Player.GetPosition(), gameTime);
             }
 
             base.Update(gameTime);
@@ -387,7 +394,8 @@
             Map.Draw(Camera.View, Camera.Projection, Camera.Position);
 
             // Player
-            PlayerWeapon.Draw(Camera.View, Camera.Projection, Camera);
+            ShotgunFPS.Draw(Camera.View, Camera.Projection, Camera);
+            RocketLauncherFPS.Draw(Camera.View, Camera.Projection, Camera);
 
             // Weapons collectables
             RocketLauncherCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, false);
