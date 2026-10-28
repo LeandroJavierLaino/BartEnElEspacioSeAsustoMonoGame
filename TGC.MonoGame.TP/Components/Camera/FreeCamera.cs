@@ -36,6 +36,26 @@
         private float bobOscilate = 0f;
 
         /// <summary>
+        /// Maximum lateral tilt (roll) applied while strafing, in radians (~5 degrees).
+        /// </summary>
+        private const float MaxLateralTilt = MathHelper.Pi / 108f;
+
+        /// <summary>
+        /// How fast the tilt interpolates towards its target (higher = snappier).
+        /// </summary>
+        private const float TiltSmoothing = 8f;
+
+        /// <summary>
+        /// Current smoothed lateral tilt angle, in radians.
+        /// </summary>
+        private float currentTilt = 0f;
+
+        /// <summary>
+        /// Target lateral tilt angle set by the strafe input, in radians.
+        /// </summary>
+        private float targetTilt = 0f;
+
+        /// <summary>
         /// Define de dash hability power starts on 51
         /// </summary>
         private float dashPower;
@@ -116,8 +136,9 @@
         /// </summary>
         private void CalculateView()
         {
-            //Projection = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 2, 16/9, 0.00000000000000001f, 1000);
-            View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
+            // Apply the lateral tilt (roll) by rotating the Up vector around the Front axis.
+            Vector3 tiltedUp = Vector3.Transform(UpDirection, Matrix.CreateFromAxisAngle(FrontDirection, currentTilt));
+            View = Matrix.CreateLookAt(Position, Position + FrontDirection, tiltedUp);
         }
 
         /// <inheritdoc />
@@ -127,7 +148,16 @@
             changed = false;
             ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
-            
+
+            // Smoothly interpolate the current tilt towards the target tilt so the roll
+            // eases in when strafing starts and eases out when it stops.
+            float newTilt = MathHelper.Lerp(currentTilt, targetTilt, Math.Clamp(TiltSmoothing * elapsedTime, 0f, 1f));
+            if (Math.Abs(newTilt - currentTilt) > 0.00001f)
+            {
+                currentTilt = newTilt;
+                changed = true;
+            }
+
             if (changed)
                 CalculateView();
         }
@@ -154,6 +184,9 @@
 
             var newPosition = Position;
 
+            // Reset the lateral tilt target; it will be set below only while strafing.
+            targetTilt = 0f;
+
             if (dashPower >= 50 && isDashing) isDashing = false;
 
             if (dashPower < 51) dashPower += 0.1f;
@@ -170,6 +203,7 @@
                 newPosition += -RightDirection * currentMovementSpeed * elapsedTime;
                 bobOscilate = BobingOscilation();
                 changed = true;
+                targetTilt = -MaxLateralTilt; // Tilt towards the left.
             }
 
             if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
@@ -177,6 +211,7 @@
                 newPosition += RightDirection * currentMovementSpeed * elapsedTime;
                 bobOscilate = BobingOscilation();
                 changed = true;
+                targetTilt = MaxLateralTilt; // Tilt towards the right.
             }
 
             if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
@@ -198,6 +233,21 @@
             {
                 Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
             }
+
+            // Update the current tilt towards the target tilt
+            if (targetTilt != 0f)
+            {
+                currentTilt = MathHelper.Lerp(currentTilt, targetTilt, TiltSmoothing * elapsedTime);
+            }
+            else
+            {
+                currentTilt = MathHelper.Lerp(currentTilt, 0f, TiltSmoothing * elapsedTime);
+            }
+
+            // Apply the tilt to the camera's rotation
+            Vector3 tiltedForward = Vector3.Transform(FrontDirection, Matrix.CreateFromAxisAngle(RightDirection, currentTilt));
+            FrontDirection = Vector3.Normalize(tiltedForward);
+            UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
         }
 
         /// <summary>

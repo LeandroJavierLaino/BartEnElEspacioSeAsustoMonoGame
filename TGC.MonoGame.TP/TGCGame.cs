@@ -119,7 +119,6 @@
         /// Enemy
         /// </summary>
         private Model TGCitoEnemyModel { get; set; }
-        private float Recoil { get; set; }
         /// <summary>
         /// Gets or sets the World.
         /// </summary>
@@ -135,7 +134,6 @@
         /// Gets or sets the GamePause.
         /// </summary>
         private Boolean GamePause { get; set; }
-        private Boolean ClickPressed { get; set; }
         private Player Player { get; set; }
 
         /// <summary>
@@ -154,11 +152,12 @@
         /// Gets or sets the Map.
         /// </summary>
         private Map Map { get; set; }
-        private Texture2D TGCitoTexture { get; set; }
         private Effect TGCitoEffect { get; set; }
         private Enemy TGCitoEnemy { get; set; }
         private WeaponFPS ShotgunFPS { get; set; }
         private WeaponFPS RocketLauncherFPS { get; set; }
+        private WeaponFPS MachineGunFPS { get; set; }
+        private WeaponFPS GranadeLauncherFPS { get; set; }
 
         /// <summary>
         /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -176,8 +175,6 @@
             // Apply changes
             Graphics.ApplyChanges();
 
-            ClickPressed = false;
-            
             // Initialize Camera
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitZ * 350, screenSize);
@@ -240,7 +237,8 @@
 
             Model FPSWeaponModel = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
             Texture2D FPSWeaponTexture = FPSWeaponModel.Meshes[0].MeshParts[1].Effect.Parameters["Texture"].GetValueTexture2D();
-            ShotgunFPS = new WeaponFPS(FPSWeaponModel, TGCitoEffect, FPSWeaponTexture, WeaponKeys.Shotgun);
+            ShotgunFPS = new WeaponFPS(FPSWeaponModel, TGCitoEffect, FPSWeaponTexture, WeaponKeys.Shotgun, new ShotgunFireMode());
+
             ShotgunFPS.SetActive(true);
             Player.AddWeapon(ShotgunFPS);
 
@@ -251,7 +249,7 @@
             Texture2D RocketLauncherTexture = RocketLauncherModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
             RocketLauncherCollect = new WeaponCollect(RocketLauncherModel, TGCitoEffect, RocketLauncherTexture, new Vector3(450f, 0f, 450f), LightPosition);
 
-            RocketLauncherFPS = new WeaponFPS(RocketLauncherModel, TGCitoEffect, RocketLauncherTexture, WeaponKeys.RocketLauncher);
+            RocketLauncherFPS = new WeaponFPS(RocketLauncherModel, TGCitoEffect, RocketLauncherTexture, WeaponKeys.RocketLauncher, new SingleFireMode(7f));
             
             Player.AddWeapon(RocketLauncherFPS);
 
@@ -259,9 +257,17 @@
             Texture2D machineGunTexture2D = MachineGunModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
             MachineGunCollect = new WeaponCollect(MachineGunModel, TGCitoEffect, machineGunTexture2D, new Vector3(650f, 0f, 650f), LightPosition);
 
+            MachineGunFPS = new WeaponFPS(MachineGunModel, TGCitoEffect, machineGunTexture2D, WeaponKeys.Machinegun, new ContinuousFireMode(0f));
+
+            Player.AddWeapon(MachineGunFPS);
+
             GranadeLauncherModel = Content.Load<Model>(ContentFolder3D + "granadeLauncher/granadeLauncher");
             Texture2D granadeLauncherTexture2D = GranadeLauncherModel.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
             GranadeLauncherCollect = new WeaponCollect(GranadeLauncherModel, TGCitoEffect, granadeLauncherTexture2D, new Vector3(850f, 0f, 850f), LightPosition);
+
+            GranadeLauncherFPS = new WeaponFPS(GranadeLauncherModel, TGCitoEffect, granadeLauncherTexture2D, WeaponKeys.GranadeLauncher, new SingleFireMode(4.5f));
+
+            Player.AddWeapon(GranadeLauncherFPS);
 
             RedArmor = Content.Load<Model>(ContentFolder3D + "redArmor/redArmor");
             Texture2D redArmorTexture2D = RedArmor.Meshes[0].MeshParts[0].Effect.Parameters["Texture"].GetValueTexture2D();
@@ -301,63 +307,14 @@
             // If GamePause is false i can move and play
             if (!GamePause)
             {
-                // Creates new bullets when left click
-                var mouse = Mouse.GetState();
-
                 Camera.Update(gameTime);
                 Player.SetPosition(Camera.Position);
-                
-                if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
-                {
-                    Bullet singleBullet = new Bullet();
-                    singleBullet.SetPosition(Camera.Position + Camera.FrontDirection * 25f);
-                    singleBullet.SetDirection(Camera.FrontDirection);
-                    singleBullet.SetUp(Camera.UpDirection);
-                    Bullets.Add(singleBullet);
-                    ClickPressed = true;
-                }
 
-                if (mouse.RightButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
-                {
-                    Bullet Bullet1 = new Bullet();
-                    Bullet1.SetPosition(Camera.Position + Camera.FrontDirection * 50f);
-                    Bullet1.SetDirection(Camera.FrontDirection);
-                    Bullet1.SetUp(Camera.UpDirection);
-                    Bullets.Add(Bullet1);
-
-                    Bullet Bullet2 = new Bullet();
-                    Bullet2.SetPosition(Camera.Position + Vector3.Up * 5 + Camera.FrontDirection * 25f);
-                    Bullet2.SetDirection(Camera.FrontDirection);
-                    Bullet2.SetUp(Camera.UpDirection);
-                    Bullets.Add(Bullet2);
-
-                    ClickPressed = true;
-                }
-
-                if (mouse.LeftButton == ButtonState.Released && mouse.RightButton == ButtonState.Released && ClickPressed) ClickPressed = false;
-
-                if (Bullets.Count >= 15)
-                {
-                    Bullets.Clear();
-                }
-
-                if (mouse.LeftButton == ButtonState.Pressed && Recoil == 0)
-                {
-                    Recoil = 10;
-                }
-
-                if (mouse.RightButton == ButtonState.Pressed && Recoil == 0)
-                {
-                    Recoil = 13.5f;
-                }
-
-                if (Recoil > 0)
-                {
-                    Recoil -= 0.25f;
-                }
-
-                ShotgunFPS.Update(Camera.Position, Recoil, gameTime);
-                RocketLauncherFPS.Update(Camera.Position, Recoil, gameTime);
+                // El disparo y el recoil ahora los maneja internamente cada WeaponFPS (solo actua la activa).
+                ShotgunFPS.Update(Camera, Bullets, gameTime);
+                RocketLauncherFPS.Update(Camera, Bullets, gameTime);
+                MachineGunFPS.Update(Camera, Bullets, gameTime);
+                GranadeLauncherFPS.Update(Camera, Bullets, gameTime);
                 Player.SetPosition(Camera.Position);
                 TGCitoEnemy.Update( [],Player.GetPosition(), gameTime);
             }
@@ -396,6 +353,8 @@
             // Player
             ShotgunFPS.Draw(Camera.View, Camera.Projection, Camera);
             RocketLauncherFPS.Draw(Camera.View, Camera.Projection, Camera);
+            MachineGunFPS.Draw(Camera.View, Camera.Projection, Camera);
+            GranadeLauncherFPS.Draw(Camera.View, Camera.Projection, Camera);
 
             // Weapons collectables
             RocketLauncherCollect.Draw(Camera.View, Camera.Projection, gameTime, Camera, false);
